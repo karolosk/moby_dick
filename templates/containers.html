@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+
+<div class="row">
+  <div class="col-md-9"><h2>Container List</h2></div>
+  <div class="col-md-3"  (click)="add()"><button>Add new container</button></div>
+</div>
+<table class="table">
+  <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Status</th>
+        <th scope="col">Name</th>
+        <th scope="col">Short id</th>
+        <th scope="col">CPU Percent</th>
+        <th scope="col">Memory usage</th>
+        <th scope="col">Memory pct</th>
+        <th scope="col">Host</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+  </thead>
+    {% for container in containers %}
+      <tr>
+        <th scope="row">{{loop.index+1}}</th>
+        <td>{{container.status}}</td>
+        <td>{{container.name}}</td>
+        <td>{{container.short_id}}</td>
+        <td>{{container.cpu_usage}}</td>
+        <td>{{container.memory_usage}}</td>
+        <td>{{container.memory_percent}}</td>
+        <td>{{container.host}}</td>
+
+        <td>
+          <button  title="start container">Start</button></td>
+        <td>
+        <td>
+          <button  title="stop container" >Stop</button></td>
+        <td>
+          <button  title="remove container">Remove</button>
+        </td>
+        </tr>
+    {% endfor %}
+
+</table>
+</div>
+
+{% endblock %}
