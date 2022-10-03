@@ -9,22 +9,29 @@ def get_container_memory_usage(container_name):
     return humanize_bytes(get_container_stats(container_name)['memory_stats']['usage'])
 
 
-def get_container_memory_max_usage(container_name):
-    return humanize_bytes(get_container_stats(container_name)['memory_stats']['max_usage'])
+def get_container_memory_percent(container_name):
+    stats = get_container_stats(container_name)
+    limit = stats.get('memory_stats').get('limit')
+    usage = stats.get('memory_stats').get('usage')
+    return round(usage / limit * 100.0, 2)
 
 
 def get_container_stats(container_name, stream=False):
     return docker_low_level_client.stats(container=container_name, stream=stream)
 
 
+# CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O        PIDS
+# e2f60fd66af9   sql1      2.10%     1.356GiB / 15.32GiB   8.85%     1.8MB / 370kB   1.2GB / 45.4MB   225
+
 # As provided from docker package
 def calculate_cpu_percent(client):
-    cpu_count = len(client["cpu_stats"]["cpu_usage"]["percpu_usage"])
+
     cpu_percent = 0.0
-    cpu_delta = float(client["cpu_stats"]["cpu_usage"]["total_usage"]) - float(client["precpu_stats"]["cpu_usage"]["total_usage"])
-    system_delta = float(client["cpu_stats"]["system_cpu_usage"]) - float(client["precpu_stats"]["system_cpu_usage"])
+    cpu_delta = float(client.get('cpu_stats').get('cpu_usage').get('total_usage')) - float(
+        client.get('precpu_stats').get('cpu_usage').get('total_usage'))
+    system_delta = float(client.get('cpu_stats').get('system_cpu_usage')) - float(client.get('precpu_stats').get('system_cpu_usage'))
     if system_delta > 0.0:
-        cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
+        cpu_percent = cpu_delta / system_delta * 100.0
     return cpu_percent
 
 
@@ -55,15 +62,16 @@ def humanize_bytes(bytesize, precision=2):
 def retrieve_container_host_data(container_id):
     port_data = docker_low_level_client.inspect_container(container_id)['NetworkSettings']['Ports']
 
-    if '5000/tcp' in port_data.keys():
-        # if 'graylog' not in port_data2['Name']:
-        host_ip = port_data['5000/tcp'][0]['HostIp']
-        host_port = port_data['5000/tcp'][0]['HostPort']
-        return {"host_ip": host_ip, "host_port": host_port}
+    for key in port_data.keys():
+        if 'tcp' in key:
+            host_ip = port_data.get(key)[0]['HostIp']
+            host_port = port_data.get(key)[0]['HostPort']
+            return {"host_ip": host_ip, "host_port": host_port}
+
     return {"host_ip": "n/a", "host_port": "n/a"}
 
 
-def retrive_containert_state_data(container_id):
+def retrieve_container_state_data(container_id):
     container_state = docker_low_level_client.inspect_container(container_id)['State']
     status = container_state['Status']
     running = container_state['Running']
