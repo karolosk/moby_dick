@@ -14,7 +14,7 @@ def retrieve_containers():
         cont.short_id = container.short_id
         cont.cpu_usage = set_cpu_percent(cont.name, cont.status)
         cont.memory_usage = set_memory_usage(cont.name, cont.status)
-        cont.memory_max_usage = set_memory_max_usage(cont.name, cont.status)
+        cont.memory_percent = set_memory_percent(cont.name, cont.status)
         cont.host = set_host(cont.status, container.id)
         cont_list.append(cont.to_json())
 
@@ -50,7 +50,7 @@ def remove_container(id):
 
 def retrieve_container_info_by_id(container_id):
     host = docker_utils.retrieve_container_host_data(container_id)
-    state = docker_utils.retrive_containert_state_data(container_id)
+    state = docker_utils.retrieve_container_state_data(container_id)
     return {"host": host, "state": state}
 
 
@@ -70,9 +70,9 @@ def set_memory_usage(container_name, status):
     return "n/a"
 
 
-def set_memory_max_usage(container_name, status):
+def set_memory_percent(container_name, status):
     if status == "running":
-        return str(docker_utils.get_container_memory_max_usage(container_name))
+        return str(docker_utils.get_container_memory_percent(container_name)) + "%"
     return "n/a"
 
 
