@@ -9,7 +9,7 @@ api = Blueprint('image_controller', 'image_controller', url_prefix='/api')
 def image_list():
     try:
         return make_response(jsonify(image.retrieve_images()), 200)
-    except (docker.errors.APIError) as e:
+    except docker.errors.APIError as e:
         return make_response(jsonify({"error": "Server error", "details": str(e)}), 500)
 
 
