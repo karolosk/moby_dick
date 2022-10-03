@@ -15,7 +15,7 @@ def retrieve_images():
 
 
 def create_image(request):
-    if (request['uri'] and request['tag']):
+    if request['uri'] and request['tag']:
         new_image = docker_client.images.build(path=request['uri'], tag=request['tag'])
         return {"created": "OK", "new_image": str(new_image[0])}
     return {"error": "Server error", "details": "You need to send both dockerfile uri and tag"}
@@ -50,7 +50,12 @@ def clean_id(id):
     return final_id[1]
 
 
-# Method to remove milis from created date
 def extract_date(attributes):
+    """
+    Method to remove milliseconds from created date
+
+    :param attributes:
+    :return:
+    """
     date = attributes['Created'].split(".")
     return date[0]
