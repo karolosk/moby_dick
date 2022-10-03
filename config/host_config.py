@@ -2,6 +2,7 @@ from docker.types import LogConfig
 import docker
 from services.moby_dick_docker import docker_low_level_client
 
+# Support for local Grafana
 log_configuration = LogConfig(type=LogConfig.types.GELF, config={
         "gelf-address": "udp://127.0.0.1:12201"
 })
